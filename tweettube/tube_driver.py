@@ -12,14 +12,15 @@ https://github.com/mattvenn/arduinosketchbook/tree/master/hardwareTests/vaccuumd
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
 
-# set up GPIO output channel
-pin_clk=2
-pin_rst=3
-pin_dat=4
-pin_en=17
-pin_on=21
-pin_buz=22
+#pin defs, those behind the # are for hw version 1 (option to come)
+pin_clk=2 #0
+pin_rst=3 #1
+pin_dat=4 #same
+pin_en=17 #same
+pin_on=27 #21
+pin_buz=22 #same
 
+# set up GPIO output channel
 GPIO.setup(pin_clk, GPIO.OUT)
 GPIO.setup(pin_rst, GPIO.OUT)
 GPIO.setup(pin_dat, GPIO.OUT)
@@ -27,10 +28,12 @@ GPIO.setup(pin_en, GPIO.OUT)
 GPIO.setup(pin_on, GPIO.OUT)
 GPIO.setup(pin_buz, GPIO.OUT)
 
+#initial states
 GPIO.output(pin_rst, GPIO.HIGH) #pull low to reset
 GPIO.output(pin_clk, GPIO.LOW) #rising edge to clock
 GPIO.output(pin_en, GPIO.LOW) #high to tell lcd to read (this because we are inverting this signal through a transistor)
 GPIO.output(pin_on, GPIO.LOW) #power to display
+GPIO.output(pin_buz, GPIO.LOW) #power to display
 
 newline_code = int("0x0a",0)
 
@@ -69,9 +72,9 @@ def send_string(string,delay=0):
 
 def buzz():
 	for i in range(1000):
-		GPIO.output(pin_buz, GPIO.LOW)
-		time.sleep(0.001)
 		GPIO.output(pin_buz, GPIO.HIGH)
+		time.sleep(0.001)
+		GPIO.output(pin_buz, GPIO.LOW)
 		time.sleep(0.001)
 	
 def display_start():	
@@ -94,12 +97,16 @@ def display_finish():
 
 if __name__ == "__main__":
 	argparser = argparse.ArgumentParser()
+	argparser.add_argument('--hw_version',
+		action='store', type=int, dest='hw_version', default="2", help="rasp pi hw version")
 	argparser.add_argument('--text',
-		action='store', dest='text', default=None, help="text to print")
+		action='store', dest='text', default="Hello World!", help="text to print")
 	argparser.add_argument('--repeats',
 		action='store', type=int, dest='repeats', default=3, help="number of times to repeat")
 
 	args=argparser.parse_args()
+
+	#hw_pins()
 	
 	display_start()
 
