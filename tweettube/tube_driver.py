@@ -24,13 +24,13 @@ GPIO.setup(pin_clk, GPIO.OUT)
 GPIO.setup(pin_rst, GPIO.OUT)
 GPIO.setup(pin_dat, GPIO.OUT)
 GPIO.setup(pin_en, GPIO.OUT)
-#GPIO.setup(pin_on, GPIO.OUT)
-#GPIO.setup(pin_buz, GPIO.OUT)
+GPIO.setup(pin_on, GPIO.OUT)
+GPIO.setup(pin_buz, GPIO.OUT)
 
 GPIO.output(pin_rst, GPIO.HIGH) #pull low to reset
 GPIO.output(pin_clk, GPIO.LOW) #rising edge to clock
 GPIO.output(pin_en, GPIO.LOW) #high to tell lcd to read (this because we are inverting this signal through a transistor)
-#GPIO.output(pin_on, GPIO.LOW) #power to display
+GPIO.output(pin_on, GPIO.LOW) #power to display
 
 newline_code = int("0x0a",0)
 
@@ -76,21 +76,20 @@ def buzz():
 	
 def display_start():	
 	#turn on display power
-	#GPIO.output(pin_on, GPIO.HIGH)
+	GPIO.output(pin_on, GPIO.HIGH)
 	#wait for display to be ready
 	time.sleep(0.1) 
 	
 	#buzz
-	#buzz()
+	buzz()
 
 	#scroll code
 	set_port(int("0x13",0))
-	set_port(newline_code)
 
 def display_finish():
 	set_port(newline_code)
 	#turn off display power
-	#GPIO.output(pin_on, GPIO.LOW)
+	GPIO.output(pin_on, GPIO.LOW)
 	#GPIO.cleanup() #this may mess with the way we left things
 
 if __name__ == "__main__":
@@ -105,6 +104,7 @@ if __name__ == "__main__":
 	display_start()
 
 	for count in range(args.repeats):
+		set_port(newline_code)
 		if len(args.text)>20:
 			send_string(args.text[0:20])
 			time.sleep(1)
