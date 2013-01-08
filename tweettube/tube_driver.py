@@ -55,7 +55,11 @@ def set_port(number):
 		#rising edge on clock to put data in
 		GPIO.output(pin_clk, GPIO.HIGH)
 		GPIO.output(pin_clk, GPIO.LOW)
-		
+	
+	#pulse clock once more to align shift and storage registers on 595 chip
+	GPIO.output(pin_clk, GPIO.HIGH)
+	GPIO.output(pin_clk, GPIO.LOW)	
+	
 	#tell display to read it
 	GPIO.output(pin_en, GPIO.LOW)
 	GPIO.output(pin_en, GPIO.HIGH)
