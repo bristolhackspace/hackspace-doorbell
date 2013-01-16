@@ -1,0 +1,99 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:          hackspace.tunnel
+# Required-Start:    $syslog $network $local_fs
+# Required-Stop:     $syslog $network $local_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: reverse ssh tunnel mattvenn.net
+# Description:       
+### END INIT INFO
+
+
+PATH=/bin:/usr/bin:/sbin:/usr/sbin
+SERVERIP=77.73.6.229
+USER=hackspace
+FORWARDS="-R localhost:47001:localhost:22"
+export AUTOSSH_GATETIME=0
+export AUTOSSH_LOGLEVEL=7
+export AUTOSSH_LOGFILE=/var/log/autossh.log
+PIDFILE=/var/run/tunnel.pid 
+DESC="autossh daemon"
+
+is_running() {
+    if [ -f $PIDFILE ]; then
+        PID=`cat $PIDFILE`
+        if [ -n "$PID" ]; then
+            return 0
+        else
+            return 1
+        fi
+    else
+        return 1
+    fi
+}
+
+start_ssh_tunnel() {
+	if ! is_running; then
+		echo -n "Starting $DESC:"
+		
+		if start-stop-daemon --start  --pidfile $PIDFILE \
+		    --background --make-pidfile --pidfile $PIDFILE \
+		    --exec /usr/bin/autossh -- -vv -nN -M 0 $USER@$SERVERIP $FORWARDS
+		then
+		    echo started.
+		else
+		    echo "something went wrong"
+		fi
+        else
+		echo "$DESC: already running (pid $PID)"
+	fi
+}
+
+stop_ssh_tunnel() {
+	echo -n "Stopping $DESC: "
+	if start-stop-daemon --stop --pidfile $PIDFILE
+	then
+	    echo stopped.
+	else
+	    echo
+	fi
+	[ -f $PIDFILE ] && rm -f $PIDFILE
+}
+
+case "$1" in
+  start)
+	start_ssh_tunnel
+    ;;
+
+  stop)
+	stop_ssh_tunnel
+    ;;
+
+  restart)
+    $0 force-reload
+    ;;
+  status)
+        if is_running; then
+            echo "$DESC: running (pid $PID)"
+            exit 0
+        else
+            echo "$DESC: not running"
+	    exit 1
+        fi
+    ;;
+
+  force-reload)
+	stop_ssh_tunnel
+	sleep 1
+	start_ssh_tunnel
+    ;;
+
+  *)
+    echo "Usage: /etc/init.d/hackspace.tunnel {start|stop|status|restart|force-reload}"
+    exit 1
+
+esac
+
+exit 0
