@@ -26,13 +26,21 @@ back_z=-2*thickness;
 module side()
 {
   w=case_length-3*spacing;
-  tab_w=w/8;
-  tab_height=2*thickness;
+  tab_w=w/8-thickness;
+  tab_height=thickness;
   cube([w,case_height,thickness],center=true);
   translate([-w/2+tab_w/2,0,0])
+    minkowski()
+    {
     cube([tab_w,case_height+tab_height,thickness],center=true);
+    cylinder(r=thickness/2,h=0.01);
+    }
   translate([w/2-tab_w/2,0,0])
+  minkowski()
+  {
     cube([tab_w,case_height+tab_height,thickness],center=true);
+    cylinder(r=thickness/2,h=0.01);
+    }
 }
 module side_diff()
 {
@@ -48,13 +56,21 @@ module side_diff()
 module top_side()
 {
   w=case_width-3*spacing;
-  tab_w=w/8;
-  tab_height=2*thickness;
+  tab_w=w/8-thickness;
+  tab_height=thickness;
   cube([w,case_height,thickness],center=true);
   translate([-w/2+tab_w/2,0,0])
+  minkowski()
+  {
     cube([tab_w,case_height+tab_height,thickness],center=true);
+    cylinder(r=thickness/2,h=0.01);
+    }
   translate([w/2-tab_w/2,0,0])
+  minkowski()
+  {
     cube([tab_w,case_height+tab_height,thickness],center=true);
+    cylinder(r=thickness/2,h=0.01);
+    }
 }
 
 module top_side_diff()
@@ -114,7 +130,7 @@ module display()
 module pi()
 {
   hole_r=2.9/2;
-  sd_slot=40;
+  sd_slot=30;
 
   //not centering the cuboids because the dimensions of the holes are relative to 0,0
   translate([-p_width/2,-p_length/2,-p_height/2])
@@ -126,11 +142,20 @@ module pi()
 
     //sdcard hole
     translate([-sd_slot/2,-sd_slot/2+p_length/2,-case_height])
+    minkowski()
+    {
       cube([sd_slot,sd_slot,case_height]);
+      cylinder(r=thickness,h=0.01);
+    }
 
     //hole for usb and etc
-    translate([p_width,0,0])
-      cube([30,p_length,p_height]);
+    translate([p_length+30-thickness,thickness/2,p_height-thickness/2])
+    rotate([0,90,0])
+    minkowski()
+    {
+      cube([p_height-thickness,p_length-thickness,30]);
+      cylinder(r=thickness/2,h=0.01);
+    }
     /*
     Corner: 0.0mm,0.0mm
     First Mount: 25.5mm,18.0mm
@@ -150,7 +175,7 @@ module front()
   minkowski()
   {
     cube([case_width-spacing,case_length-spacing,thickness],center=true); 
-    cylinder(r=spacing,h=thickness,center=true);
+    cylinder(r=spacing,h=0.01,center=true);
   }
 }
 
@@ -199,7 +224,7 @@ module build_front()
 {
   difference()
   {
-    translate([0,0,case_height-thickness/2])
+    translate([0,0,case_height-thickness])
       front();
     build_display();
     build_bolts();
@@ -214,7 +239,7 @@ module build_sides_diff()
   translate([bolt_hole_space_x,0,back_z+case_height/2+thickness/2])
   rotate([90,0,90])
     side_diff();
-  translate([-bolt_hole_space_x,0,back_z+case_height/2+0.1])
+  translate([-bolt_hole_space_x,0,back_z+case_height/2+thickness/2])
   rotate([90,0,90])
     side_diff();
 }
@@ -230,7 +255,7 @@ module build_side_r()
 {
   difference()
   {
-  translate([-bolt_hole_space_x,0,back_z+case_height/2+0.1])
+  translate([-bolt_hole_space_x,0,back_z+case_height/2+thickness/2])
   rotate([90,0,90])
     side();
     build_pi();
@@ -248,7 +273,7 @@ module build_top_sides_diff()
   translate([0,bolt_hole_space_y,back_z+case_height/2+thickness/2])
   rotate([90,0,0])
     top_side_diff();
-  translate([0,-bolt_hole_space_y,back_z+case_height/2+0.1])
+  translate([0,-bolt_hole_space_y,back_z+case_height/2+thickness/2])
   rotate([90,0,0])
     top_side_diff();
 }
@@ -257,19 +282,19 @@ module build_top_sides()
   translate([0,bolt_hole_space_y,back_z+case_height/2+thickness/2])
   rotate([90,0,0])
     top_side();
-  translate([0,-bolt_hole_space_y,back_z+case_height/2+0.1])
+  translate([0,-bolt_hole_space_y,back_z+case_height/2+thickness/2])
   rotate([90,0,0])
     top_side();
 }
-/*
 build_front();
-*/
-projection(cut=false)
+//projection(cut=false)
 build_back();
-/*
 build_top_sides();
 build_side_l();
 build_side_r();
+//build_pi();
+//pi();
+/*
 *projection(cut=false)
   top_side();
 //projection(cut=false)
@@ -280,6 +305,5 @@ build_side_r();
 *rotate([0,90,0])
   build_side_r();
 build_display();
-build_pi();
 build_bolts();
 */
