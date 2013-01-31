@@ -1,8 +1,12 @@
+/* todo:
+ - measure dc jack hole
+*/
 use </home/mattvenn/cad/openscad/motor/tab_creator.scad>;
-$fs=1;
+$fs=0.5;
 button_r=16/2;
 case_height=40;
 thickness=5.05;
+bit_radius=1.5;
 bolt_r=2.5;
 dc_jack_r=4;
 d_width=240.0;
@@ -29,13 +33,13 @@ module side()
   tab_w=w/8-thickness;
   tab_height=thickness;
   cube([w,case_height,thickness],center=true);
-  translate([-w/2+tab_w/2,0,0])
+  translate([-w/2+tab_w/2+bit_radius,0,0])
     minkowski()
     {
     cube([tab_w,case_height+tab_height,thickness],center=true);
     cylinder(r=thickness/2,h=0.01);
     }
-  translate([w/2-tab_w/2,0,0])
+  translate([w/2-tab_w/2-bit_radius,0,0])
   minkowski()
   {
     cube([tab_w,case_height+tab_height,thickness],center=true);
@@ -45,7 +49,7 @@ module side()
 module side_diff()
 {
   w=case_length-3*spacing;
-  tab_w=w/8+thickness;
+  tab_w=w/8+2*bit_radius;
   tab_height=8*thickness;
   cube([w,case_height,thickness],center=true);
   translate([-w/2-thickness/2+tab_w/2,0,0])
@@ -59,13 +63,13 @@ module top_side()
   tab_w=w/8-thickness;
   tab_height=thickness;
   cube([w,case_height,thickness],center=true);
-  translate([-w/2+tab_w/2,0,0])
+  translate([-w/2+tab_w/2+bit_radius,0,0])
   minkowski()
   {
     cube([tab_w,case_height+tab_height,thickness],center=true);
     cylinder(r=thickness/2,h=0.01);
     }
-  translate([w/2-tab_w/2,0,0])
+  translate([w/2-tab_w/2-bit_radius,0,0])
   minkowski()
   {
     cube([tab_w,case_height+tab_height,thickness],center=true);
@@ -76,7 +80,7 @@ module top_side()
 module top_side_diff()
 {
   w=case_width-3*spacing;
-  tab_w=w/8+thickness;
+  tab_w=w/8+2*bit_radius;
   tab_height=8*thickness;
   cube([w,case_height,thickness],center=true);
   translate([-w/2-thickness/2+tab_w/2,0,0])
@@ -171,7 +175,7 @@ module pi()
 
 module front()
 {
-  color("grey",0.5)
+  color("grey")
   minkowski()
   {
     cube([case_width-spacing,case_length-spacing,thickness],center=true); 
