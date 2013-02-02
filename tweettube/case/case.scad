@@ -1,14 +1,15 @@
 /* todo:
  - measure dc jack hole
 */
-use </home/mattvenn/cad/openscad/motor/tab_creator.scad>;
+//use </home/mattvenn/cad/openscad/motor/tab_creator.scad>;
 $fs=0.5;
 button_r=16/2;
 case_height=40;
-thickness=5.05;
-bit_radius=1.5;
+thickness=4.85; //tested
+bit_radius=1.5; //tested
 bolt_r=2.5;
-dc_jack_r=4;
+dc_jack_r=11/2;
+dc_jack_l=12.5;
 d_width=240.0;
 d_length=70;
 d_height=11.4;
@@ -270,7 +271,13 @@ module build_side_r()
 }
 module build_dc_jack()
 {
-  cylinder(r=dc_jack_r,h=thickness*4,center=true);
+    hull()
+    {
+      translate([0,-dc_jack_l/2+dc_jack_r])
+          cylinder(r=dc_jack_r,h=thickness*4,center=true);
+      translate([0,+dc_jack_l/2-dc_jack_r])
+          cylinder(r=dc_jack_r,h=thickness*4,center=true);
+    }
 }
 module build_top_sides_diff()
 {
@@ -290,12 +297,12 @@ module build_top_sides()
   rotate([90,0,0])
     top_side();
 }
-build_front();
-//projection(cut=false)
+//build_front();
+projection(cut=false)
 build_back();
-build_top_sides();
-build_side_l();
-build_side_r();
+//build_top_sides();
+//build_side_l();
+//build_side_r();
 //build_pi();
 //pi();
 /*
