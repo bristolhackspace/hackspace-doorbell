@@ -3,13 +3,13 @@
 */
 //use </home/mattvenn/cad/openscad/motor/tab_creator.scad>;
 $fs=0.5;
-button_r=16/2;
+button_r=16.5/2;
 case_height=40;
 thickness=4.85; //tested
 bit_radius=1.5; //tested
-bolt_r=2.5;
-dc_jack_r=11/2;
-dc_jack_l=12.5;
+bolt_r=2.7;
+dc_jack_r=12/2;
+dc_jack_l=14;
 d_width=240.0;
 d_length=70;
 d_height=11.4;
@@ -98,7 +98,7 @@ module build_buttons()
 }
 module display()
 {
-  hole_r=3.2/2;
+  hole_r=3.4/2;
   bolt_x=7.5;
   bolt_y=11.5;
   bolt_hole_space_x = 215;
@@ -134,7 +134,7 @@ module display()
 
 module pi()
 {
-  hole_r=2.9/2;
+  hole_r=3.1/2;
   sd_slot=30;
 
   //not centering the cuboids because the dimensions of the holes are relative to 0,0
@@ -146,7 +146,7 @@ module pi()
       cube([30,5,5]);
 
     //sdcard hole
-    translate([-sd_slot/2,-sd_slot/2+p_length/2,-case_height])
+    translate([-sd_slot,-sd_slot/2+p_length/2,-case_height])
     minkowski()
     {
       cube([sd_slot,sd_slot,case_height]);
@@ -297,13 +297,14 @@ module build_top_sides()
   rotate([90,0,0])
     top_side();
 }
+//projection() 
 //build_front();
-projection(cut=false)
-build_back();
+projection() build_back();
 //build_top_sides();
 //build_side_l();
-//build_side_r();
+*projection()rotate([0,90,0])build_side_r();
 //build_pi();
+*build_display();
 //pi();
 /*
 *projection(cut=false)
@@ -315,6 +316,6 @@ build_back();
 
 *rotate([0,90,0])
   build_side_r();
-build_display();
+*build_display();
 build_bolts();
 */
