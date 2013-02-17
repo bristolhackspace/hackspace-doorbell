@@ -1,25 +1,31 @@
-/* todo:
- - measure dc jack hole
-*/
-//use </home/mattvenn/cad/openscad/motor/tab_creator.scad>;
+//smooth curves
 $fs=0.5;
-button_r=16.5/2;
+
+//fundamental measurements
 case_height=40;
-thickness=4.85; //tested
-bit_radius=1.5; //tested
+thickness=4.85; //thickness of material
+bit_radius=1.5; //radius of cutting bit
+
+button_r=16.5/2;
 bolt_r=2.7;
 dc_jack_r=12/2;
 dc_jack_l=14;
+
+//display measurements
 d_width=240.0;
 d_length=70;
 d_height=11.4;
+
+//how close things should be together
 spacing =10;
 bolt_spacing=5;
 
+//pi measurments
 p_width= 85.60;
 p_length =56;
 p_height =21;
 
+//some calculated bits
 case_width = d_width + 2*spacing;
 case_length=d_length+3*spacing+p_length;
 
@@ -27,7 +33,13 @@ bolt_hole_space_x=case_width/2-bolt_spacing;
 bolt_hole_space_y=case_length/2-bolt_spacing;
 
 back_z=-2*thickness;
+d_y=case_length/2-d_length/2-spacing;
 
+
+////////////////////////////////////////////////
+//first we have all the models. These are mostly centred at the 0,0,0 position, and can be used for exporting to DXFs
+
+//the left and right side
 module side()
 {
   w=case_length-3*spacing;
@@ -47,6 +59,8 @@ module side()
     cylinder(r=thickness/2,h=0.01);
     }
 }
+
+//the left and right side, for using to cut slots
 module side_diff()
 {
   w=case_length-3*spacing;
@@ -58,6 +72,8 @@ module side_diff()
   translate([w/2+thickness/2-tab_w/2,0,0])
     cube([tab_w,case_height+tab_height,thickness],center=true);
 }
+
+//the top and bottom sides
 module top_side()
 {
   w=case_width-3*spacing;
@@ -78,6 +94,7 @@ module top_side()
     }
 }
 
+//top and bottom sides for cutting slots
 module top_side_diff()
 {
   w=case_width-3*spacing;
@@ -89,13 +106,8 @@ module top_side_diff()
   translate([w/2+thickness/2-tab_w/2,0,0])
     cube([tab_w,case_height+tab_height,thickness],center=true);
 }
-module build_buttons()
-{
-  translate([-d_width/4,0,0])
-    cylinder(r=button_r,h=case_height,center=true);
-  translate([d_width/4,0,0])
-    cylinder(r=button_r,h=case_height,center=true);
-}
+
+//the VFD display, with cylinders for cutting bolt holes
 module display()
 {
   hole_r=3.4/2;
@@ -109,16 +121,8 @@ module display()
   {
   //display base
   cube([d_width,d_length,d_height]);
-  //display cutout
-  /*
-  corner_r=display_y/4;
-  translate([0,0,case_height/2])
-    minkowski()
-    {
-      cube([display_x-corner_r,display_y-corner_r,case_height],center=true);
-      cylinder(r=corner_r,h=case_height);
-    }
-  */
+
+  //bolts - wrong on the datasheet!
   translate([bolt_x+bolt_hole_space_x,bolt_y+bolt_hole_space_y,-case_height/2])
     cylinder(r=hole_r,h=case_height,center=true);
   translate([bolt_x,bolt_y,-case_height/2])
@@ -131,7 +135,7 @@ module display()
 
 }
 
-
+//the raspberry pi. With bits sticking out so they can get cut out of the case
 module pi()
 {
   hole_r=3.1/2;
@@ -174,6 +178,7 @@ module pi()
   }
 }
 
+//front and back
 module front()
 {
   color("grey")
@@ -184,6 +189,19 @@ module front()
   }
 }
 
+////////////////////////////////////////////////
+//now all the build_ modules, these move things into the right position, so they can be booleaned out of other modules
+
+//make in it's right position
+module build_buttons()
+{
+  translate([-d_width/4,0,case_height])
+    cylinder(r=button_r,h=case_height,center=true);
+  translate([d_width/4,0,case_height])
+    cylinder(r=button_r,h=case_height,center=true);
+}
+
+//make in it's right position
 module build_bolts()
 {
   bolt_l=case_height*3;
@@ -197,13 +215,15 @@ module build_bolts()
     cylinder(r=bolt_r,h=bolt_l,center=true);
 
 }
-d_y=case_length/2-d_length/2-spacing;
+
+//make in it's right position
 module build_display()
 {
 translate([0,d_y,d_height/2])
   display();
 }
 
+//make in it's right position
 module build_pi()
 {
 translate([p_width/2-d_width/2,d_y-p_length/2-d_length/2-spacing,p_height/2])
@@ -211,6 +231,7 @@ translate([p_width/2-d_width/2,d_y-p_length/2-d_length/2-spacing,p_height/2])
     pi();
 }
 
+//make in it's right position
 module build_back()
 {
   difference()
@@ -225,97 +246,103 @@ module build_back()
   }
 }
 
+//make in it's right position
 module build_front()
 {
   difference()
   {
     translate([0,0,case_height-thickness])
       front();
-    build_display();
     build_bolts();
-    translate([0,0,case_height])
-      build_buttons();
+    build_buttons();
     build_top_sides_diff();
     build_sides_diff();
   }
 }
+
+//make in it's right position
 module build_sides_diff()
 {
   translate([bolt_hole_space_x,0,back_z+case_height/2+thickness/2])
-  rotate([90,0,90])
-    side_diff();
+      rotate([90,0,90])
+        side_diff();
   translate([-bolt_hole_space_x,0,back_z+case_height/2+thickness/2])
-  rotate([90,0,90])
-    side_diff();
+      rotate([90,0,90])
+        side_diff();
 }
 
+//make in it's right position
 module build_side_l()
 {
   translate([bolt_hole_space_x,0,back_z+case_height/2+thickness/2])
-  rotate([90,0,90])
-    side();
- 
+      rotate([90,0,90])
+        side();
 }
+
+//make in it's right position
 module build_side_r()
 {
   difference()
   {
-  translate([-bolt_hole_space_x,0,back_z+case_height/2+thickness/2])
-  rotate([90,0,90])
-    side();
-    build_pi();
-  translate([-bolt_hole_space_x,spacing,back_z+case_height/2+spacing])
-  rotate([90,0,90])
-    build_dc_jack();
+      translate([-bolt_hole_space_x,0,back_z+case_height/2+thickness/2])
+          rotate([90,0,90])
+            side();
+      build_pi();
+      build_dc_jack();
   }
 }
+
+//make in it's right position
 module build_dc_jack()
 {
-    hull()
-    {
-      translate([0,-dc_jack_l/2+dc_jack_r])
-          cylinder(r=dc_jack_r,h=thickness*4,center=true);
-      translate([0,+dc_jack_l/2-dc_jack_r])
-          cylinder(r=dc_jack_r,h=thickness*4,center=true);
-    }
+  translate([-bolt_hole_space_x,spacing,back_z+case_height/2+spacing])
+      rotate([90,0,90])
+        hull()
+        {
+          translate([0,-dc_jack_l/2+dc_jack_r])
+              cylinder(r=dc_jack_r,h=thickness*4,center=true);
+          translate([0,+dc_jack_l/2-dc_jack_r])
+              cylinder(r=dc_jack_r,h=thickness*4,center=true);
+        }
 }
+
+//make in it's right position
 module build_top_sides_diff()
 {
   translate([0,bolt_hole_space_y,back_z+case_height/2+thickness/2])
-  rotate([90,0,0])
-    top_side_diff();
+      rotate([90,0,0])
+        top_side_diff();
   translate([0,-bolt_hole_space_y,back_z+case_height/2+thickness/2])
-  rotate([90,0,0])
-    top_side_diff();
+      rotate([90,0,0])
+        top_side_diff();
 }
+
+//make in it's right position
 module build_top_sides()
 {
   translate([0,bolt_hole_space_y,back_z+case_height/2+thickness/2])
-  rotate([90,0,0])
-    top_side();
+      rotate([90,0,0])
+        top_side();
   translate([0,-bolt_hole_space_y,back_z+case_height/2+thickness/2])
-  rotate([90,0,0])
-    top_side();
+      rotate([90,0,0])
+        top_side();
 }
-//projection() 
-//build_front();
-projection() build_back();
-//build_top_sides();
-//build_side_l();
-*projection()rotate([0,90,0])build_side_r();
-//build_pi();
-*build_display();
-//pi();
-/*
-*projection(cut=false)
-  top_side();
-//projection(cut=false)
-//top_side();
-*rotate([0,90,0])
-  build_side_l();
 
-*rotate([0,90,0])
-  build_side_r();
-*build_display();
-build_bolts();
-*/
+//for exporting to DXF
+//projection() build_front();
+//projection() build_back();
+//projection()rotate([0,90,0])build_side_r();
+//projection()rotate([0,90,0])build_side_l();
+//projection() top_side();
+
+//for showing the model
+build_front();
+build_back();
+build_top_sides();
+build_side_l();
+build_side_r();
+
+//other bits
+//build_display();
+//build_pi();
+//build_bolts();
