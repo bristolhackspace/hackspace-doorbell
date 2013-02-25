@@ -28,7 +28,7 @@ class StreamListener(tweepy.StreamListener):
 
         os.system("aplay ./doorbell.wav&")
         os.system("sudo ./tube_driver.py --text '%s'" % text) #should do this in a nicer way
-        os.system("sudo ./tube_driver.py --repeats 3 --text '%s'" % "Press left button to reply") #this is not nice
+        os.system("sudo ./tube_driver.py --repeats 20 --text '%s'" % "Press left button to reply") #this is not nice
         someone_in = False
         for x in range(600):
             #if (not(GPIO.input(23)) or not(GPIO.input(24))):
