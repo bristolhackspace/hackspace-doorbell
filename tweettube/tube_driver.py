@@ -13,25 +13,25 @@ GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
 
 #pin defs, those behind the # are for hw version 1 (option to come)
-pin_clk=2 #0
+pin_clk=4 #4
 pin_rst=3 #1
-pin_dat=4 #same
-pin_en=17 #same
-pin_on=27 #21
-pin_buz=22 #same
+pin_dat=27 #21
+pin_wrt=22 #22
+pin_on=2 #0
+pin_buz=18 #18
 
 # set up GPIO output channel
 GPIO.setup(pin_clk, GPIO.OUT)
 GPIO.setup(pin_rst, GPIO.OUT)
 GPIO.setup(pin_dat, GPIO.OUT)
-GPIO.setup(pin_en, GPIO.OUT)
+GPIO.setup(pin_wrt, GPIO.OUT)
 GPIO.setup(pin_on, GPIO.OUT)
 GPIO.setup(pin_buz, GPIO.OUT)
 
 #initial states
 GPIO.output(pin_rst, GPIO.HIGH) #pull low to reset
 GPIO.output(pin_clk, GPIO.LOW) #rising edge to clock
-GPIO.output(pin_en, GPIO.LOW) #high to tell lcd to read (this because we are inverting this signal through a transistor)
+GPIO.output(pin_wrt, GPIO.LOW) #high to tell lcd to read (this because we are inverting this signal through a transistor)
 GPIO.output(pin_on, GPIO.LOW) #power to display
 GPIO.output(pin_buz, GPIO.LOW) #power to display
 
@@ -61,10 +61,10 @@ def set_port(number):
 	GPIO.output(pin_clk, GPIO.LOW)	
 	
 	#tell display to read it
-	GPIO.output(pin_en, GPIO.LOW)
-	GPIO.output(pin_en, GPIO.HIGH)
+	GPIO.output(pin_wrt, GPIO.LOW)
+	GPIO.output(pin_wrt, GPIO.HIGH)
 	time.sleep(0.001)
-	GPIO.output(pin_en, GPIO.LOW)
+	GPIO.output(pin_wrt, GPIO.LOW)
 	#display needs 1000us to do a char
 
 
@@ -82,7 +82,7 @@ def buzz():
 		time.sleep(0.001)
 	
 def display_start():	
-	#turn on display power
+	#turn on display, enable shift register outputs
 	GPIO.output(pin_on, GPIO.HIGH)
 	#wait for display to be ready
 	time.sleep(0.1) 
@@ -95,7 +95,7 @@ def display_start():
 
 def display_finish():
 	set_port(newline_code)
-	#turn off display power
+	#turn off display power, disable shift register outputs
 	GPIO.output(pin_on, GPIO.LOW)
 	#GPIO.cleanup() #this may mess with the way we left things
 
@@ -109,7 +109,7 @@ if __name__ == "__main__":
 		action='store', type=int, dest='repeats', default=3, help="number of times to repeat")
 
 	args=argparser.parse_args()
-
+	
 	#hw_pins()
 	
 	display_start()
