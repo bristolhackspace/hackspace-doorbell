@@ -64,10 +64,14 @@ if __name__ == "__main__":
     api = tweepy.API(auth)
 
     apicalls = 0
-    print "init"
-    l = StreamListener()
-    streamer = tweepy.Stream(auth=auth, listener=l)
-    #only listen to our account
-    setTerms = ['@bristolhackbell']
-    print "start listening..."
-    streamer.filter(track = setTerms)
+    while True:
+        try:
+            print "init"
+            l = StreamListener()
+            streamer = tweepy.Stream(auth=auth, listener=l)
+            #only listen to our account
+            setTerms = ['@bristolhackbell']
+            print "start listening..."
+            streamer.filter(track = setTerms)
+        except Exception, e:
+            print "unexpected error!", e
